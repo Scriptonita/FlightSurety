@@ -1,8 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./flightsurety.css";
-import Status from "./Status";
+import Airlines from "./Airlines";
 import Flights from "./Flights";
+import Status from "./Status";
 import {
   Card,
   Col,
@@ -19,8 +20,13 @@ const styles = {
     paddingTop: "0.5rem"
   },
   title: {
-    color: "white",
+    color: "black",
     paddingLeft: "1rem"
+  },
+  status: {
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "flex-end"
   },
   card: {
     marginTop: "0.5rem",
@@ -39,9 +45,15 @@ const styles = {
 
 const Main = () => (
   <Container style={styles.container}>
-    <h1 style={styles.title}>Flightsurety</h1>
     <Card style={styles.card}>
-      <Status />
+      <Row>
+        <Col sm={6}>
+          <h2 style={styles.title}>Flightsurety</h2>
+        </Col>
+        <Col sm={6} style={styles.status}>
+          <Status />
+        </Col>
+      </Row>
     </Card>
     <Jumbotron style={styles.jumbotron}>
       <Tab.Container id="menu" defaultActiveKey="airlines">
@@ -62,7 +74,7 @@ const Main = () => (
           <Col sm={9}>
             <Tab.Content>
               <Tab.Pane eventKey="airlines">
-                <div>Airlines</div>
+                <Airlines />
               </Tab.Pane>
               <Tab.Pane eventKey="passengers">
                 <div>Passengers</div>
