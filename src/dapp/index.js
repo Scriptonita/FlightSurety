@@ -1,55 +1,81 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import "./flightsurety.css";
+import Status from "./Status";
+import Flights from "./Flights";
+import {
+  Card,
+  Col,
+  Container,
+  Jumbotron,
+  Nav,
+  Row,
+  Tab
+} from "react-bootstrap";
 
-import DOM from './dom';
-import Contract from './contract';
-import './flightsurety.css';
+const styles = {
+  container: {
+    marginTop: "3rem",
+    paddingTop: "0.5rem"
+  },
+  title: {
+    color: "white",
+    paddingLeft: "1rem"
+  },
+  card: {
+    marginTop: "0.5rem",
+    marginBottom: "0.5rem"
+  },
+  jumbotron: {
+    paddingTop: "1rem",
+    paddingBottom: "1rem"
+  },
+  menu: {
+    backgroundColor: "#bbb",
+    padding: "1rem",
+    borderRadius: "0.3rem"
+  }
+};
 
+const Main = () => (
+  <Container style={styles.container}>
+    <h1 style={styles.title}>Flightsurety</h1>
+    <Card style={styles.card}>
+      <Status />
+    </Card>
+    <Jumbotron style={styles.jumbotron}>
+      <Tab.Container id="menu" defaultActiveKey="airlines">
+        <Row>
+          <Col sm={3} style={styles.menu}>
+            <Nav variant="pills" className="flex-column">
+              <Nav.Item>
+                <Nav.Link eventKey="airlines">Airlines</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="passengers">Passengers</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="flights">Flights</Nav.Link>
+              </Nav.Item>
+            </Nav>
+          </Col>
+          <Col sm={9}>
+            <Tab.Content>
+              <Tab.Pane eventKey="airlines">
+                <div>Airlines</div>
+              </Tab.Pane>
+              <Tab.Pane eventKey="passengers">
+                <div>Passengers</div>
+              </Tab.Pane>
+              <Tab.Pane eventKey="flights">
+                <Flights />
+              </Tab.Pane>
+            </Tab.Content>
+          </Col>
+        </Row>
+      </Tab.Container>
+    </Jumbotron>
+  </Container>
+);
 
-(async() => {
-
-    let result = null;
-
-    let contract = new Contract('localhost', () => {
-
-        // Read transaction
-        contract.isOperational((error, result) => {
-            console.log(error,result);
-            display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
-        });
-    
-
-        // User-submitted transaction
-        DOM.elid('submit-oracle').addEventListener('click', () => {
-            let flight = DOM.elid('flight-number').value;
-            // Write transaction
-            contract.fetchFlightStatus(flight, (error, result) => {
-                display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
-            });
-        })
-    
-    });
-    
-
-})();
-
-
-function display(title, description, results) {
-    let displayDiv = DOM.elid("display-wrapper");
-    let section = DOM.section();
-    section.appendChild(DOM.h2(title));
-    section.appendChild(DOM.h5(description));
-    results.map((result) => {
-        let row = section.appendChild(DOM.div({className:'row'}));
-        row.appendChild(DOM.div({className: 'col-sm-4 field'}, result.label));
-        row.appendChild(DOM.div({className: 'col-sm-8 field-value'}, result.error ? String(result.error) : String(result.value)));
-        section.appendChild(row);
-    })
-    displayDiv.append(section);
-
-}
-
-
-
-
-
-
-
+ReactDOM.render(<Main />, document.getElementById("root"));
