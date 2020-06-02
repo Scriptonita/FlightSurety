@@ -16,10 +16,8 @@ const Flights = () => {
   const submit = () => {
     const flightToSearch = flight.current.value;
 
-    const contract = new Contract("localhost", () => {
-      contract.fetchFlightStatus(flightToSearch, (error, result) => {
-        setFlightData(result);
-      });
+    Contract.fetchFlightStatus(flightToSearch, (error, result) => {
+      setFlightData(result);
     });
   };
 

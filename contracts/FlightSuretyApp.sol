@@ -1,4 +1,4 @@
-pragma solidity >=0.4.25;
+pragma solidity 0.6.8;
 
 // It's important to avoid vulnerabilities due to numeric overflow bugs
 // OpenZeppelin's SafeMath library, when used correctly, protects agains such bugs
@@ -27,6 +27,7 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
     address private contractOwner; // Account used to deploy contract
+    mapping(address => uint8) private authorizedCaller;
 
     struct Flight {
         bool isRegistered;
@@ -36,7 +37,7 @@ contract FlightSuretyApp {
     }
     mapping(bytes32 => Flight) private flights;
 
-    FlightSuretyData dataContract;
+    FlightSuretyData flightSuretyData;
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -74,33 +75,52 @@ contract FlightSuretyApp {
      */
     constructor() public {
         contractOwner = msg.sender;
-        dataContract = FlightSuretyData(msg.sender);
-        registerAirline(msg.sender, "JHG Airlines");
+        flightSuretyData = new FlightSuretyData();
     }
 
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
-    function isOperational() public pure returns (bool) {
-        return true; // Modify to call data contract's status
+    function isOperational() public view returns (bool) {
+        // return true; // Modify to call data contract's status
+        return flightSuretyData.isOperational();
+    }
+
+    function getFlight(bytes32 id)
+        public
+        view
+        returns (uint256 timestamp, address airline)
+    {
+        return (flights[id].updatedTimestamp, flights[id].airline);
     }
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
+    function isAuthorized(address airline) external returns (bool result) {
+        return flightSuretyData.isAuthorized(airline);
+    }
+
     /**
      * @dev Add an airline to the registration queue
      *
      */
 
-    function registerAirline(address newAirline, string name)
+    function registerAirline(address newAirline, string calldata name)
         external
-        returns (bool success, uint256 votes)
     {
-        dataContract.registerAirline(newAirline, name);
+        flightSuretyData.registerAirline(newAirline, name);
         // return (success, 0);
+    }
+
+    function getAirlineStatus(address airline) external {
+        flightSuretyData.getAirlineStatus(airline);
+    }
+
+    function getAirlinesCounter() external {
+        flightSuretyData.getAirlinesCounter();
     }
 
     /**
@@ -310,3 +330,17 @@ contract FlightSuretyApp {
 
     // endregion
 }
+
+// abstract contract FlightSuretyData {
+//     function isOperational() external virtual returns (bool);
+
+//     function registerAirline(address airline) external virtual;
+
+//     function getAirlineStatus(address airline) external virtual;
+
+//     function getAirlinesCounter() external virtual;
+
+//     function isAuthorized(address airline) external virtual returns (bool);
+
+//     function authorizeCaller(address airline) external virtual;
+// }

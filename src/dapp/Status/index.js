@@ -16,10 +16,12 @@ const styles = {
 
 const Status = () => {
   const [isOperational, setIsOperational] = useState();
-  const contract = new Contract("localhost", () => {
-    contract.isOperational((error, result) => {
+  Contract.isOperational((error, result) => {
+    if (error) {
+      console.log("Error: ", error);
+    } else {
       setIsOperational(result);
-    });
+    }
   });
 
   const renderStatus = () =>

@@ -34,6 +34,13 @@ class ContractClass {
     });
   }
 
+  isAuthorized(callback) {
+    let self = this;
+    self.flightSuretyApp.methods
+      .isAuthorized(self.owner)
+      .call({ from: self.owner }, callback);
+  }
+
   isOperational(callback) {
     let self = this;
     self.flightSuretyApp.methods
@@ -54,10 +61,34 @@ class ContractClass {
         callback(error, payload);
       });
   }
+
+  registerAirline(address, name, callback) {
+    let self = this;
+    self.flightSuretyApp.methods
+      .registerAirline(address, name)
+      .send({ from: self.owner }, callback);
+  }
+
+  fetchAirlineStatus(address, callback) {
+    let self = this;
+    self.flightSuretyApp.methods
+      .getAirlineStatus(address)
+      .send({ from: self.owner }, callback);
+  }
+
+  getAirlinesCounter(callback) {
+    let self = this;
+    self.flightSuretyApp.methods
+      .getAirlinesCounter()
+      .send({ from: self.owner }, callback);
+  }
 }
 
-const Contract = new ContractClass("localhost", () =>
-  console.log("Contract initialized")
-);
+const Contract = new ContractClass("localhost", () => {
+  const event = new CustomEvent("contractInitialized");
+
+  window.dispatchEvent(event);
+  console.log("Contract initialized");
+});
 
 export default Contract;
