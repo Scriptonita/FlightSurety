@@ -1,6 +1,9 @@
 import React from "react";
 import Contract from "../contract";
 import { Card, Table } from "react-bootstrap";
+import Config from "../config.json";
+import Web3 from "web3";
+import FlightSuretyData from "../../../build/contracts/FlightSuretyData.json";
 
 const styles = {
   card: {
@@ -10,14 +13,15 @@ const styles = {
   }
 };
 const List = () => {
-  // Contract.isAuthorized((error, result) => {
-  //   if (error) {
-  //     console.log("Otro errror: ", error);
-  //   } else {
-  //     console.log("Resultado Autorized: ", result);
-  //   }
-  // });
-  const renderAirline = airline => {
+  const renderAirlines = () => {
+    const airlines = Contract.fetchAirlines((error, result) => {
+      console.log("VOy");
+      if (error) {
+        console.log("Errorl: ", error);
+      } else {
+        console.log("Result: ", result);
+      }
+    });
     // const counter = Contract.getAirlinesCounter((error, result) => {
     //   if (error) {
     //     console.log("Error: ", error);
@@ -32,10 +36,11 @@ const List = () => {
     //     console.log("RESULTADO: ", result);
     //   }
     // });
-    // console.log("STATUS: ", status);
+
+    console.log("STATUS: ", status);
     return (
-      <tr key={airline}>
-        <td>{airline}</td>
+      <tr key="eoe">
+        <td>lala</td>
         <td>Ok</td>
         <td>Ok</td>
       </tr>
@@ -52,9 +57,7 @@ const List = () => {
             <th>Funded</th>
           </tr>
         </thead>
-        <tbody>
-          {Contract.airlines.map(airline => renderAirline(airline))}
-        </tbody>
+        <tbody>{renderAirlines()}</tbody>
       </Table>
     </Card>
   );

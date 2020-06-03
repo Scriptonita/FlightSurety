@@ -110,17 +110,21 @@ contract FlightSuretyApp {
 
     function registerAirline(address newAirline, string calldata name)
         external
+        returns (bool, uint256)
     {
-        flightSuretyData.registerAirline(newAirline, name);
-        // return (success, 0);
+        (bool success, uint256 votes) = flightSuretyData.registerAirline(
+            newAirline,
+            name
+        );
+        return (success, votes);
     }
 
     function getAirlineStatus(address airline) external {
         flightSuretyData.getAirlineStatus(airline);
     }
 
-    function getAirlinesCounter() external {
-        flightSuretyData.getAirlinesCounter();
+    function getAirlinesCounter() external view returns (uint256) {
+        return flightSuretyData.getAirlinesCounter();
     }
 
     /**

@@ -1,4 +1,5 @@
 import FlightSuretyApp from "../../build/contracts/FlightSuretyApp.json";
+import FlightSuretyData from "../../build/contracts/FlightSuretyData.json";
 import Config from "./config.json";
 import Web3 from "web3";
 
@@ -10,15 +11,21 @@ class ContractClass {
       FlightSuretyApp.abi,
       config.appAddress
     );
+    this.flightSuretyData = new this.web3.eth.Contract(
+      FlightSuretyData.abi,
+      config.dataAddress
+    );
     this.initialize(callback);
     this.owner = null;
     this.airlines = [];
     this.passengers = [];
+    this.accounts = [];
   }
 
   initialize(callback) {
     this.web3.eth.getAccounts((error, accts) => {
       this.owner = accts[0];
+      this.accounts = accts;
 
       let counter = 1;
 
@@ -67,6 +74,30 @@ class ContractClass {
     self.flightSuretyApp.methods
       .registerAirline(address, name)
       .send({ from: self.owner }, callback);
+  }
+
+  fetchAirlines() {
+    let self = this;
+    // self.flightSuretyData.getPastEvents(
+    //   "AirlineRegistered",
+    //   (error, events) => {
+    //     if (error) {
+    //       console.log("Error: ", error);
+    //     } else {
+    //       console.log("Events: ", events);
+    //     }
+    //   }
+    // );
+    console.log("DATA:", self.flightSuretyData);
+    const events = self.flightSuretyData.events
+      .allEvents({ fromBlock: 0, toBlock: "latest" })
+      .on("AirlineRegistered", (error, log) => {
+        if (error) {
+          console.log("Errores");
+        } else {
+          console.log("LOG: ", log);
+        }
+      });
   }
 
   fetchAirlineStatus(address, callback) {

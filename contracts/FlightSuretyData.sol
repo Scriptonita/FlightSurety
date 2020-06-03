@@ -12,7 +12,7 @@ contract FlightSuretyData {
 
     address private contractOwner; // Account used to deploy contract
     bool private operational; // Blocks all state changes throughout the contract if false
-    uint8 public airlinesCounter = 0;
+    uint256 public airlinesCounter = 0;
 
     struct Airline {
         string name;
@@ -54,7 +54,7 @@ contract FlightSuretyData {
             isFunded: true,
             votes: 0
         });
-        airlinesCounter = airlinesCounter + 1;
+        airlinesCounter.add(1);
         emit AirlineRegistered(msg.sender, "JHG_Airline");
     }
 
@@ -172,7 +172,7 @@ contract FlightSuretyData {
             isFunded: false,
             votes: 0
         });
-        airlinesCounter = airlinesCounter + 1;
+        airlinesCounter.add(1);
         emit AirlineRegistered(airline, name);
         return (true, 0);
     }
