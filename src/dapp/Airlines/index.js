@@ -2,6 +2,8 @@ import React from "react";
 import { Tab, Tabs } from "react-bootstrap";
 import Add from "./add";
 import List from "./list";
+import Status from "./status";
+import Votes from "./votes";
 
 const styles = {
   tabs: {
@@ -18,8 +20,11 @@ const Airlines = () => {
       <Tab eventKey="add" title="Add">
         <Add />
       </Tab>
+      <Tab eventKey="status" title="Status">
+        <Status />
+      </Tab>
       <Tab eventKey="vote" title="Vote">
-        <div>Vote for Airline</div>
+        <Votes />
       </Tab>
     </Tabs>
   );
