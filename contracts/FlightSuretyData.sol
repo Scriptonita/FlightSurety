@@ -12,7 +12,7 @@ contract FlightSuretyData {
 
     address private contractOwner; // Account used to deploy contract
     bool private operational; // Blocks all state changes throughout the contract if false
-    uint256 public airlinesCounter = 0;
+    uint8 public airlinesCounter;
 
     struct Airline {
         string name;
@@ -46,16 +46,15 @@ contract FlightSuretyData {
     constructor() public {
         contractOwner = msg.sender;
         operational = true;
-        authorizedCaller[contractOwner] = 1;
+        authorizedCaller[msg.sender] = 1;
 
-        airlines[msg.sender] = Airline({
-            name: "JHG_Airline",
-            isRegistered: true,
-            isFunded: true,
-            votes: 0
-        });
-        airlinesCounter.add(1);
-        emit AirlineRegistered(msg.sender, "JHG_Airline");
+        // airlines[msg.sender] = Airline({
+        //     name: "JHG_Multimedia",
+        //     isRegistered: true,
+        //     isFunded: false,
+        //     votes: 0
+        // });
+        // airlinesCounter = 1;
     }
 
     /********************************************************************************************/
@@ -79,7 +78,7 @@ contract FlightSuretyData {
      * @dev Modifier that requires the "ContractOwner" account to be the function caller
      */
     modifier requireContractOwner() {
-        require(msg.sender == contractOwner, "Caller is not contract owner");
+        require(contractOwner == msg.sender, "Caller is not contract owner");
         _;
     }
 
@@ -116,6 +115,15 @@ contract FlightSuretyData {
 
     function isOperational() public view returns (bool) {
         return operational;
+    }
+
+    function getContractOwner() external view returns (address) {
+        return contractOwner;
+    }
+
+    function setContractOwner(address newOwner) external {
+        contractOwner = newOwner;
+        this.authorizeCaller(newOwner);
     }
 
     /**
@@ -172,12 +180,13 @@ contract FlightSuretyData {
             isFunded: false,
             votes: 0
         });
-        airlinesCounter.add(1);
+        airlinesCounter++;
+        // this.authorizeCaller(airline);
         emit AirlineRegistered(airline, name);
         return (true, 0);
     }
 
-    function getAirlinesCounter() external view returns (uint256) {
+    function getAirlinesCounter() external view returns (uint8) {
         return airlinesCounter;
     }
 
@@ -186,15 +195,17 @@ contract FlightSuretyData {
         view
         requireAirlineExists(airline)
         returns (
+            string memory,
             bool,
             bool,
             uint8
         )
     {
+        string memory name = airlines[airline].name;
         bool isRegistered = airlines[airline].isRegistered;
         bool isFunded = airlines[airline].isFunded;
         uint8 votes = airlines[airline].votes;
-        return (isRegistered, isFunded, votes);
+        return (name, isRegistered, isFunded, votes);
     }
 
     function isAirline(address airline) external view returns (bool) {

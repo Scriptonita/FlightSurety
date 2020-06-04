@@ -76,6 +76,8 @@ contract FlightSuretyApp {
     constructor() public {
         contractOwner = msg.sender;
         flightSuretyData = new FlightSuretyData();
+        flightSuretyData.registerAirline(msg.sender, "JHG_Airline");
+        flightSuretyData.authorizeCaller(msg.sender);
     }
 
     /********************************************************************************************/
@@ -85,6 +87,10 @@ contract FlightSuretyApp {
     function isOperational() public view returns (bool) {
         // return true; // Modify to call data contract's status
         return flightSuretyData.isOperational();
+    }
+
+    function getContractOwner() public view returns (address, address) {
+        return (flightSuretyData.getContractOwner(), contractOwner);
     }
 
     function getFlight(bytes32 id)
@@ -112,18 +118,23 @@ contract FlightSuretyApp {
         external
         returns (bool, uint256)
     {
-        (bool success, uint256 votes) = flightSuretyData.registerAirline(
-            newAirline,
-            name
-        );
-        return (success, votes);
+        return flightSuretyData.registerAirline(newAirline, name);
     }
 
-    function getAirlineStatus(address airline) external {
-        flightSuretyData.getAirlineStatus(airline);
+    function getAirlineStatus(address airline)
+        external
+        view
+        returns (
+            string memory,
+            bool,
+            bool,
+            uint8
+        )
+    {
+        return flightSuretyData.getAirlineStatus(airline);
     }
 
-    function getAirlinesCounter() external view returns (uint256) {
+    function getAirlinesCounter() external view returns (uint8) {
         return flightSuretyData.getAirlinesCounter();
     }
 

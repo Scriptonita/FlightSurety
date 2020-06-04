@@ -11,10 +11,6 @@ class ContractClass {
       FlightSuretyApp.abi,
       config.appAddress
     );
-    this.flightSuretyData = new this.web3.eth.Contract(
-      FlightSuretyData.abi,
-      config.dataAddress
-    );
     this.initialize(callback);
     this.owner = null;
     this.airlines = [];
@@ -78,40 +74,34 @@ class ContractClass {
 
   fetchAirlines() {
     let self = this;
-    // self.flightSuretyData.getPastEvents(
-    //   "AirlineRegistered",
-    //   (error, events) => {
-    //     if (error) {
-    //       console.log("Error: ", error);
-    //     } else {
-    //       console.log("Events: ", events);
-    //     }
-    //   }
-    // );
-    console.log("DATA:", self.flightSuretyData);
-    const events = self.flightSuretyData.events
-      .allEvents({ fromBlock: 0, toBlock: "latest" })
-      .on("AirlineRegistered", (error, log) => {
+  }
+
+  getContractOwner() {
+    let self = this;
+    self.flightSuretyApp.methods
+      .getContractOwner()
+      .call({ from: self.owner }, (error, result) => {
         if (error) {
-          console.log("Errores");
+          console.log("Error: ", error);
         } else {
-          console.log("LOG: ", log);
+          console.log("Contract Owner deployed: ", result);
         }
       });
   }
 
-  fetchAirlineStatus(address, callback) {
+  getAirlineStatus(address, callback) {
     let self = this;
+    console.log("OWNER: ", self.owner);
     self.flightSuretyApp.methods
       .getAirlineStatus(address)
-      .send({ from: self.owner }, callback);
+      .call({ from: self.owner }, callback);
   }
 
   getAirlinesCounter(callback) {
     let self = this;
     self.flightSuretyApp.methods
       .getAirlinesCounter()
-      .send({ from: self.owner }, callback);
+      .call({ from: self.owner }, callback);
   }
 }
 
