@@ -24,12 +24,21 @@ const Add = () => {
   const [addressValue, setAddressValue] = useState("");
   const [nameValue, setNameValue] = useState("");
 
-  const handleError = (error, string) => {
-    let message = "Error: Unknown error";
-    if (string && error.message.includes(string)) {
-      message = "Error: " + string;
-    }
-    setAlertValue({ show: true, variant: "danger", message });
+  const handleError = error => {
+    // let message = "Error: Unknown error";
+    // if (error.message.includes("Airline is registered")) {
+    //   message = "Error: Airline is registered ";
+    // } else if (
+    //   error.message.includes("First Four require caller is Airline registered")
+    // ) {
+    //   message =
+    //     "Error: First Four airlines require to be registered for existing airline";
+    // } else if (error.message.includes("Caller is not valid")) {
+    //   message = "Error: Caller is not valid";
+    // } else {
+    //   console.log("Error adding airline: ", error.message);
+    // }
+    setAlertValue({ show: true, variant: "danger", message: error.message });
   };
 
   const handleSucces = message => {
@@ -45,9 +54,9 @@ const Add = () => {
 
     Contract.registerAirline(addressValue, nameValue, (error, result) => {
       if (error) {
-        handleError(error, "Airline is registered");
+        handleError(error);
       } else {
-        handleSucces("Airline was registered with success");
+        handleSucces("Airline was added to registration queue with success");
       }
     });
   };

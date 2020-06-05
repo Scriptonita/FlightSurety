@@ -69,7 +69,7 @@ class ContractClass {
     let self = this;
     self.flightSuretyApp.methods
       .registerAirline(address, name)
-      .send({ from: self.owner }, callback);
+      .send({ from: self.owner, gas: 9999999 }, callback);
   }
 
   fetchAirlines() {
@@ -102,6 +102,13 @@ class ContractClass {
     self.flightSuretyApp.methods
       .getAirlinesCounter()
       .call({ from: self.owner }, callback);
+  }
+
+  voteAirline(voter, voted, callback) {
+    let self = this;
+    self.flightSuretyApp.methods
+      .voteAirline(voted)
+      .send({ from: voter, gas: 9999999 }, callback);
   }
 }
 

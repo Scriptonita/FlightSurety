@@ -14,6 +14,7 @@ import {
   faCheckCircle,
   faTimesCircle
 } from "@fortawesome/free-solid-svg-icons";
+import Vote from "./vote";
 
 const styles = {
   alert: {
@@ -162,17 +163,25 @@ const Status = () => {
         </Button>
       </Form>
       {status.show && (
-        <Table style={styles.table} striped bordered>
-          <thead>
-            <tr>
-              <th>Airline Name</th>
-              <th>Registered</th>
-              <th>Funded</th>
-              <th>Votes</th>
-            </tr>
-          </thead>
-          <tbody>{renderAirlineStatus()}</tbody>
-        </Table>
+        <div>
+          <Table style={styles.table} striped bordered>
+            <thead>
+              <tr>
+                <th>Airline Name</th>
+                <th>Registered</th>
+                <th>Funded</th>
+                <th>Votes</th>
+              </tr>
+            </thead>
+            <tbody>{renderAirlineStatus()}</tbody>
+          </Table>
+          <div>
+            {!status.isRegistered && (
+              <Vote toVote={addressValue} onSuccess={submit} />
+            )}
+            {!status.isFunded && <div>Fund</div>}
+          </div>
+        </div>
       )}
       {alert.show && (
         <Alert

@@ -74,9 +74,7 @@ contract("Flight Surety Tests", async accounts => {
         from: config.firstAirline,
         gas: 9999999
       });
-    } catch (e) {
-      console.log("Error: ", e);
-    }
+    } catch (e) {}
     let result = await config.flightSuretyData.isAirline.call(newAirline);
     // ASSERT
     assert.equal(
@@ -94,4 +92,6 @@ contract("Flight Surety Tests", async accounts => {
       "Should be one airline registered after contract is deployed"
     );
   });
+
+  it("First four airlines require to be registered by an existing airline", () => {});
 });

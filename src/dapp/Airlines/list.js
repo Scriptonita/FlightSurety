@@ -13,15 +13,16 @@ const styles = {
   }
 };
 const List = () => {
+  Contract.getContractOwner();
   const renderAirlines = () => {
-    const airlines = Contract.fetchAirlines((error, result) => {
-      console.log("VOy");
-      if (error) {
-        console.log("Errorl: ", error);
-      } else {
-        console.log("Result: ", result);
-      }
-    });
+    // const airlines = Contract.fetchAirlines((error, result) => {
+    //   console.log("VOy");
+    //   if (error) {
+    //     console.log("Errorl: ", error);
+    //   } else {
+    //     console.log("Result: ", result);
+    //   }
+    // });
     // const counter = Contract.getAirlinesCounter((error, result) => {
     //   if (error) {
     //     console.log("Error: ", error);
@@ -29,7 +30,7 @@ const List = () => {
     //     console.log("Counter: ", result);
     //   }
     // });
-    // const status = Contract.fetchAirlineStatus(airline, (error, result) => {
+    // const status = Contract.getAirlineStatus(airline, (error, result) => {
     //   if (error) {
     //     console.log("ERROR: ", error);
     //   } else {

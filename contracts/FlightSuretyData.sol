@@ -16,6 +16,7 @@ contract FlightSuretyData {
 
     struct Airline {
         string name;
+        bool inSystem;
         bool isRegistered;
         bool isFunded;
         uint8 votes;
@@ -99,6 +100,11 @@ contract FlightSuretyData {
     }
 
     modifier requireAirlineExists(address airline) {
+        require(airlines[airline].inSystem, "Airline was not found");
+        _;
+    }
+
+    modifier requireAirlineIsRegistered(address airline) {
         require(airlines[airline].isRegistered, "Airline is not registered");
         _;
     }
@@ -170,29 +176,36 @@ contract FlightSuretyData {
 
     function registerAirline(address airline, string calldata name)
         external
+        requireIsOperational
         requireIsCallerAuthorized
         requireAirlineIsNotRegistered(airline)
         returns (bool success, uint256 votes)
     {
         airlines[airline] = Airline({
             name: name,
-            isRegistered: true,
+            inSystem: true,
+            isRegistered: airlinesCounter < 4,
             isFunded: false,
             votes: 0
         });
         airlinesCounter++;
-        // this.authorizeCaller(airline);
         emit AirlineRegistered(airline, name);
         return (true, 0);
     }
 
-    function getAirlinesCounter() external view returns (uint8) {
+    function getAirlinesCounter()
+        external
+        view
+        requireIsOperational
+        returns (uint8)
+    {
         return airlinesCounter;
     }
 
     function getAirlineStatus(address airline)
         external
         view
+        requireIsOperational
         requireAirlineExists(airline)
         returns (
             string memory,
@@ -208,8 +221,30 @@ contract FlightSuretyData {
         return (name, isRegistered, isFunded, votes);
     }
 
-    function isAirline(address airline) external view returns (bool) {
-        return airlines[airline].isRegistered;
+    function isAirline(address airline)
+        external
+        view
+        requireIsOperational
+        requireAirlineExists(airline)
+        returns (bool)
+    {
+        return true;
+    }
+
+    function voteAirline(address voter, address voted)
+        external
+        requireIsOperational
+        requireAirlineIsRegistered(voter)
+        requireAirlineIsNotRegistered(voted)
+        returns (uint8, bool)
+    {
+        uint8 votes = airlines[voted].votes + 1;
+        airlines[voted].votes = votes;
+
+        if (votes > (airlinesCounter / 2)) {
+            airlines[voted].isRegistered = true;
+        }
+        return (airlines[voted].votes, airlines[voted].isRegistered);
     }
 
     /**
@@ -253,11 +288,11 @@ contract FlightSuretyData {
     //  * @dev Fallback function for funding smart contract.
     //  *
     //  */
-    // fallback() external payable {
-    //     fund();
-    // }
+    fallback() external payable {
+        fund();
+    }
 
-    // receive() external payable {
-    //     emit ValueReceived(msg.sender, msg.value);
-    // }
+    receive() external payable {
+        emit ValueReceived(msg.sender, msg.value);
+    }
 }

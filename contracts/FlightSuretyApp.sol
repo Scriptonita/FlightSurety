@@ -65,6 +65,17 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireFirstFourRegistrations(address caller) {
+        uint8 counter = this.getAirlinesCounter();
+        if (counter < 4) {
+            require(
+                flightSuretyData.isAirline(caller),
+                "First four airlines need to be registered by an existing airline"
+            );
+        }
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -116,6 +127,8 @@ contract FlightSuretyApp {
 
     function registerAirline(address newAirline, string calldata name)
         external
+        requireIsOperational
+        requireFirstFourRegistrations(msg.sender)
         returns (bool, uint256)
     {
         return flightSuretyData.registerAirline(newAirline, name);
@@ -124,6 +137,7 @@ contract FlightSuretyApp {
     function getAirlineStatus(address airline)
         external
         view
+        requireIsOperational
         returns (
             string memory,
             bool,
@@ -134,8 +148,21 @@ contract FlightSuretyApp {
         return flightSuretyData.getAirlineStatus(airline);
     }
 
-    function getAirlinesCounter() external view returns (uint8) {
+    function getAirlinesCounter()
+        external
+        view
+        requireIsOperational
+        returns (uint8)
+    {
         return flightSuretyData.getAirlinesCounter();
+    }
+
+    function voteAirline(address voted)
+        external
+        requireIsOperational
+        returns (uint8, bool)
+    {
+        return flightSuretyData.voteAirline(msg.sender, voted);
     }
 
     /**
