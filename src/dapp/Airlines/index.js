@@ -1,7 +1,7 @@
 import React from "react";
 import { Tab, Tabs } from "react-bootstrap";
 import Add from "./add";
-import List from "./list";
+import Description from "./description";
 import Status from "./status";
 
 const styles = {
@@ -12,9 +12,9 @@ const styles = {
 
 const Airlines = () => {
   return (
-    <Tabs defaultActiveKey="list" id="Airlines-page" style={styles.tabs}>
-      <Tab eventKey="list" title="List">
-        <List />
+    <Tabs defaultActiveKey="description" id="Airlines-page" style={styles.tabs}>
+      <Tab eventKey="description" title="Description">
+        <Description />
       </Tab>
       <Tab eventKey="add" title="Add">
         <Add />

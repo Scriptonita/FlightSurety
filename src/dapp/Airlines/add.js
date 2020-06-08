@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Contract from "../contract";
-import { Alert, Button, Col, Dropdown, Form } from "react-bootstrap";
+import { Alert, Button, Card, Col, Dropdown, Form } from "react-bootstrap";
 
 const styles = {
   alert: {
@@ -80,7 +80,7 @@ const Add = () => {
     ));
 
   return (
-    <div style={styles.body}>
+    <Card style={styles.body}>
       <Form>
         <Form.Group controlId="formGridAddress2">
           <Form.Label>Name</Form.Label>
@@ -138,7 +138,7 @@ const Add = () => {
           {alert.message}
         </Alert>
       )}
-    </div>
+    </Card>
   );
 };
 

@@ -85,10 +85,10 @@ const Main = () => {
                   <Nav.Link eventKey="airlines">Airlines</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="passengers">Passengers</Nav.Link>
+                  <Nav.Link eventKey="flights">Flights</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="flights">Flights</Nav.Link>
+                  <Nav.Link eventKey="passengers">Passengers</Nav.Link>
                 </Nav.Item>
               </Nav>
             </Col>
@@ -100,11 +100,11 @@ const Main = () => {
                 <Tab.Pane eventKey="airlines">
                   <Airlines />
                 </Tab.Pane>
-                <Tab.Pane eventKey="passengers">
-                  <div>Passengers</div>
-                </Tab.Pane>
                 <Tab.Pane eventKey="flights">
                   <Flights />
+                </Tab.Pane>
+                <Tab.Pane eventKey="passengers">
+                  <div>Passengers</div>
                 </Tab.Pane>
               </Tab.Content>
             </Col>

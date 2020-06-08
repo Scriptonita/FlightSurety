@@ -22,7 +22,6 @@ const styles = {
     marginTop: "1rem"
   },
   card: {
-    marginTop: "1rem",
     padding: "0.5rem",
     color: "black"
   },
