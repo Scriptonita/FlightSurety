@@ -76,6 +76,11 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireCallerIsFunded() {
+        require(flightSuretyData.isFunded(msg.sender), "Airline is not funded");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -84,7 +89,7 @@ contract FlightSuretyApp {
      * @dev Contract constructor
      *
      */
-    constructor() public {
+    constructor() public payable {
         contractOwner = msg.sender;
         flightSuretyData = new FlightSuretyData();
         flightSuretyData.registerAirline(msg.sender, "JHG_Airline");
@@ -128,6 +133,7 @@ contract FlightSuretyApp {
     function registerAirline(address newAirline, string calldata name)
         external
         requireIsOperational
+        requireCallerIsFunded
         requireFirstFourRegistrations(msg.sender)
         returns (bool, uint256)
     {
@@ -163,6 +169,10 @@ contract FlightSuretyApp {
         returns (uint8, bool)
     {
         return flightSuretyData.voteAirline(msg.sender, voted);
+    }
+
+    function fundAirline() external payable returns (bool) {
+        return flightSuretyData.fund{value: msg.value}(msg.sender);
     }
 
     /**

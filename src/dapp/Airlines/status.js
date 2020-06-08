@@ -15,6 +15,7 @@ import {
   faTimesCircle
 } from "@fortawesome/free-solid-svg-icons";
 import Vote from "./vote";
+import Fund from "./fund";
 
 const styles = {
   alert: {
@@ -179,7 +180,9 @@ const Status = () => {
             {!status.isRegistered && (
               <Vote toVote={addressValue} onSuccess={submit} />
             )}
-            {!status.isFunded && <div>Fund</div>}
+            {!status.isFunded && (
+              <Fund toFund={addressValue} onSuccess={submit} />
+            )}
           </div>
         </div>
       )}

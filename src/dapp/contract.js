@@ -110,6 +110,13 @@ class ContractClass {
       .voteAirline(voted)
       .send({ from: voter, gas: 9999999 }, callback);
   }
+
+  fundAirline(address, value, callback) {
+    let self = this;
+    self.flightSuretyApp.methods
+      .fundAirline()
+      .send({ from: address, value: value * 1000000000000000000 }, callback);
+  }
 }
 
 const Contract = new ContractClass("localhost", () => {

@@ -156,6 +156,10 @@ contract FlightSuretyData {
         authorizedCaller[contractAddress] = 0;
     }
 
+    function isFunded(address airline) external view returns (bool) {
+        return airlines[airline].isFunded;
+    }
+
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
@@ -271,9 +275,11 @@ contract FlightSuretyData {
      *
      */
 
-    function fund() public payable {
+    function fund(address airline) public payable returns (bool) {
         require(msg.value >= 10 ether, "Funds are not enought");
+        airlines[airline].isFunded = true;
         emit AirlineFunded();
+        return airlines[airline].isFunded;
     }
 
     function getFlightKey(
@@ -288,11 +294,11 @@ contract FlightSuretyData {
     //  * @dev Fallback function for funding smart contract.
     //  *
     //  */
-    fallback() external payable {
-        fund();
-    }
+    // fallback() external payable {
+    //     fund(airline);
+    // }
 
-    receive() external payable {
-        emit ValueReceived(msg.sender, msg.value);
-    }
+    // receive() external payable {
+    //     emit ValueReceived(msg.sender, msg.value);
+    // }
 }
