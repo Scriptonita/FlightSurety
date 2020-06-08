@@ -67,15 +67,27 @@ contract("Flight Surety Tests", async accounts => {
   it("(airline) cannot register an Airline using registerAirline() if it is not funded", async () => {
     // ARRANGE
     let newAirline = accounts[2];
+    let result = true;
+
+    const status = await config.flightSuretyApp.getAirlineStatus(accounts[0]);
 
     // ACT
     try {
-      await config.flightSuretyApp.registerAirline(newAirline, "Test_Airline", {
-        from: config.firstAirline,
-        gas: 9999999
-      });
+      await config.flightSuretyApp.registerAirline(
+        newAirline,
+        "Test_Airline",
+        () => {},
+        {
+          from: accounts[0],
+          gas: 9999999
+        }
+      );
     } catch (e) {}
-    let result = await config.flightSuretyData.isAirline.call(newAirline);
+    try {
+      result = await config.flightSuretyApp.isAirline.call(newAirline);
+    } catch (e) {
+      result = false;
+    }
     // ASSERT
     assert.equal(
       result,
@@ -85,7 +97,8 @@ contract("Flight Surety Tests", async accounts => {
   });
 
   it("First Airline is created after deploy", async () => {
-    const counter = await config.flightSuretyData.getAirlinesCounter();
+    const counter = await config.flightSuretyApp.getAirlinesCounter();
+
     assert.equal(
       BigNumber(counter),
       1,
