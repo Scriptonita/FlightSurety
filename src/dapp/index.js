@@ -4,6 +4,7 @@ import Contract from "./contract";
 import "./flightsurety.css";
 import Airlines from "./Airlines";
 import Flights from "./Flights";
+import Home from "./Home";
 import Status from "./Status";
 import {
   Button,
@@ -73,10 +74,13 @@ const Main = () => {
         </Row>
       </Card>
       <Jumbotron style={styles.jumbotron}>
-        <Tab.Container id="menu" defaultActiveKey="airlines">
+        <Tab.Container id="menu" defaultActiveKey="home">
           <Row>
             <Col sm={3} style={styles.menu}>
               <Nav variant="pills" className="flex-column">
+                <Nav.Item>
+                  <Nav.Link eventKey="home">Home</Nav.Link>
+                </Nav.Item>
                 <Nav.Item>
                   <Nav.Link eventKey="airlines">Airlines</Nav.Link>
                 </Nav.Item>
@@ -90,6 +94,9 @@ const Main = () => {
             </Col>
             <Col sm={9}>
               <Tab.Content>
+                <Tab.Pane eventKey="home">
+                  <Home />
+                </Tab.Pane>
                 <Tab.Pane eventKey="airlines">
                   <Airlines />
                 </Tab.Pane>
