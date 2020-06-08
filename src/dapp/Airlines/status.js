@@ -48,21 +48,13 @@ const Status = () => {
 
   const handleAddressValue = newValue => setAddressValue(newValue);
 
-  const handleError = (error, string) => {
-    let message = "Error: Unknown error";
-    if (string && error.message.includes(string)) {
-      message = "Error: " + string;
-    }
-    setAlertValue({ show: true, message });
-  };
-
   const submit = e => {
     e.preventDefault();
     setStatus({ show: false });
     setAlertValue({ show: false });
     Contract.getAirlineStatus(addressValue, (error, result) => {
       if (error) {
-        handleError(error, "Airline is not registered");
+        setAlertValue({ show: true, message: error.message });
       } else {
         setStatus({
           show: true,
