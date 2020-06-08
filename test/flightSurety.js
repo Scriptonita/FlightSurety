@@ -54,7 +54,7 @@ contract("Flight Surety Tests", async accounts => {
 
     let reverted = false;
     try {
-      await config.flightSurety.setTestingMode(true);
+      await config.flightSuretyData.getAirlinesCounter();
     } catch (e) {
       reverted = true;
     }
@@ -62,6 +62,17 @@ contract("Flight Surety Tests", async accounts => {
 
     // Set it back for other tests to work
     await config.flightSuretyData.setOperatingStatus(true);
+  });
+
+  it(`(multiparty) can disable data contract from Dapp`, async function () {
+    let operational = await config.flightSuretyApp.isOperational();
+    assert.equal(operational, true, "Dapp is not operational");
+
+    await config.flightSuretyApp.setOperatingStatus(false);
+    operational = await config.flightSuretyApp.isOperational();
+    assert.equal(operational, false, "Dapp can't change status to operational");
+
+    await config.flightSuretyApp.setOperatingStatus(true);
   });
 
   it("(airline) cannot register an Airline using registerAirline() if it is not funded", async () => {
