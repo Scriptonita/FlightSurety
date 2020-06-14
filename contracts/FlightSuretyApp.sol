@@ -7,7 +7,6 @@ pragma solidity 0.6.8;
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./FlightSuretyData.sol";
 
-
 /************************************************** */
 /* FlightSurety Smart Contract                      */
 /************************************************** */
@@ -37,6 +36,8 @@ contract FlightSuretyApp {
     }
     mapping(bytes32 => Flight) private flights;
 
+    uint8 flightsCounter;
+
     FlightSuretyData flightSuretyData;
 
     /********************************************************************************************/
@@ -53,7 +54,10 @@ contract FlightSuretyApp {
      */
     modifier requireIsOperational() {
         // Modify to call data contract's status
-        require(flightSuretyData.isOperational(), "Contract is currently not operational");
+        require(
+            flightSuretyData.isOperational(),
+            "Contract is currently not operational"
+        );
         _; // All modifiers require an "_" which indicates where the function body will be added
     }
 
@@ -94,6 +98,7 @@ contract FlightSuretyApp {
         flightSuretyData = new FlightSuretyData();
         flightSuretyData.registerAirline(msg.sender, "JHG_Airline");
         flightSuretyData.authorizeCaller(msg.sender);
+        flightsCounter = 0;
     }
 
     /********************************************************************************************/
@@ -125,7 +130,7 @@ contract FlightSuretyApp {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
-    function isAuthorized(address airline) external returns (bool result) {
+    function isAuthorized(address airline) external view returns (bool result) {
         return flightSuretyData.isAuthorized(airline);
     }
 
@@ -167,6 +172,15 @@ contract FlightSuretyApp {
         return flightSuretyData.getAirlinesCounter();
     }
 
+    function isFundedAirline(address airline)
+        external
+        view
+        requireIsOperational
+        returns (bool)
+    {
+        return flightSuretyData.isFunded(airline);
+    }
+
     function voteAirline(address voted)
         external
         requireIsOperational
@@ -184,7 +198,24 @@ contract FlightSuretyApp {
      *
      */
 
-    function registerFlight() external pure {}
+    function registerFlight(address airline, string calldata name)
+        external
+        requireIsOperational
+        returns (bool)
+    {
+        if (flightSuretyData.isFunded(airline)) {
+            bytes32 key = keccak256(abi.encodePacked(name));
+            flights[bytes32(key)] = Flight({
+                isRegistered: true,
+                statusCode: STATUS_CODE_UNKNOWN,
+                updatedTimestamp: now,
+                airline: airline
+            });
+            flightsCounter++;
+            return true;
+        }
+        return false;
+    }
 
     /**
      * @dev Called after oracle has updated flight status
@@ -196,7 +227,22 @@ contract FlightSuretyApp {
         string memory flight,
         uint256 timestamp,
         uint8 statusCode
-    ) internal pure {}
+    ) internal {
+        bytes32 key = keccak256(abi.encodePacked(flight));
+        flights[key].statusCode = statusCode;
+        flights[key].updatedTimestamp = timestamp;
+    }
+
+    function getStatusOfFlight(string calldata flight)
+        external
+        view
+        requireIsOperational
+        returns (uint256, uint8)
+    {
+        bytes32 key = keccak256(abi.encodePacked(flight));
+
+        return (flights[key].updatedTimestamp, flights[key].statusCode);
+    }
 
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus(
@@ -216,6 +262,50 @@ contract FlightSuretyApp {
         });
 
         emit OracleRequest(index, airline, flight, timestamp);
+    }
+
+    function buy(address airline, string calldata flight)
+        external
+        payable
+        requireIsOperational
+        returns (bool)
+    {
+        return
+            flightSuretyData.buy{value: msg.value}(msg.sender, airline, flight);
+    }
+
+    function getPassenger(address passenger)
+        external
+        view
+        requireIsOperational
+        returns (uint256, uint8)
+    {
+        return flightSuretyData.getPassenger(passenger);
+    }
+
+    function getInsurance(
+        address passenger,
+        address airline,
+        string calldata flight
+    ) external view requireIsOperational returns (uint256, string memory) {
+        return flightSuretyData.getInsurance(passenger, airline, flight);
+    }
+
+    function creditInsurees(
+        address passenger,
+        address airline,
+        string calldata flight
+    ) external requireIsOperational {
+        flightSuretyData.creditInsurees(passenger, airline, flight);
+    }
+
+    function pay(address payable passenger)
+        external
+        payable
+        requireIsOperational
+        returns (uint256)
+    {
+        return flightSuretyData.pay(passenger, msg.value);
     }
 
     // region ORACLE MANAGEMENT
@@ -274,6 +364,10 @@ contract FlightSuretyApp {
         string flight,
         uint256 timestamp
     );
+
+    function getRegistrationFee() external view returns (uint256) {
+        return REGISTRATION_FEE;
+    }
 
     // Register an oracle with the contract
     function registerOracle() external payable {
@@ -386,17 +480,3 @@ contract FlightSuretyApp {
 
     // endregion
 }
-
-// abstract contract FlightSuretyData {
-//     function isOperational() external virtual returns (bool);
-
-//     function registerAirline(address airline) external virtual;
-
-//     function getAirlineStatus(address airline) external virtual;
-
-//     function getAirlinesCounter() external virtual;
-
-//     function isAuthorized(address airline) external virtual returns (bool);
-
-//     function authorizeCaller(address airline) external virtual;
-// }

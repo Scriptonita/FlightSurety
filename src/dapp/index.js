@@ -6,6 +6,7 @@ import Airlines from "./Airlines";
 import Flights from "./Flights";
 import Home from "./Home";
 import Status from "./Status";
+import Passengers from "./Passengers";
 import {
   Button,
   Card,
@@ -25,7 +26,8 @@ const styles = {
   },
   container: {
     marginTop: "3rem",
-    paddingTop: "0.5rem"
+    paddingTop: "0.5rem",
+    paddingBottom: "0.5rem"
   },
   jumbotron: {
     paddingTop: "1rem",
@@ -104,7 +106,7 @@ const Main = () => {
                   <Flights />
                 </Tab.Pane>
                 <Tab.Pane eventKey="passengers">
-                  <div>Passengers</div>
+                  <Passengers />
                 </Tab.Pane>
               </Tab.Content>
             </Col>

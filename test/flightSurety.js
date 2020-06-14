@@ -1,4 +1,3 @@
-const truffleAssert = require("truffle-assertions");
 var Test = require("../config/testConfig.js");
 var BigNumber = require("bignumber.js");
 

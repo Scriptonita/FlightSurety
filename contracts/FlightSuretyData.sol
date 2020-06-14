@@ -2,7 +2,6 @@ pragma solidity 0.6.8;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-
 contract FlightSuretyData {
     using SafeMath for uint256;
 
@@ -25,6 +24,26 @@ contract FlightSuretyData {
     mapping(address => Airline) public airlines;
     mapping(address => uint8) private authorizedCaller;
 
+    enum InsuranceState {Active, Payed, Expired}
+
+    struct Insurance {
+        address passenger;
+        address airline;
+        string flight;
+        uint256 value;
+        InsuranceState state;
+    }
+
+    mapping(bytes32 => Insurance) private insurances;
+
+    struct Passenger {
+        uint256 credit;
+        bool isRegistered;
+        uint8 insurances;
+    }
+
+    mapping(address => Passenger) private passengers;
+
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -39,6 +58,9 @@ contract FlightSuretyData {
     event FallbackFunctionCalled();
     event ValueReceived(address wallet, uint256 value);
     event AddressIsAuthorized(address wallet);
+    event InsurancePurchased(address passenger, address airline, string flight);
+    event CreditPayout(address passenger, address airline, string flight);
+    event CreditTransfered(address passenger, uint256 value);
 
     /**
      * @dev Constructor
@@ -48,14 +70,6 @@ contract FlightSuretyData {
         contractOwner = msg.sender;
         operational = true;
         authorizedCaller[msg.sender] = 1;
-
-        // airlines[msg.sender] = Airline({
-        //     name: "JHG_Multimedia",
-        //     isRegistered: true,
-        //     isFunded: false,
-        //     votes: 0
-        // });
-        // airlinesCounter = 1;
     }
 
     /********************************************************************************************/
@@ -106,6 +120,11 @@ contract FlightSuretyData {
 
     modifier requireAirlineIsRegistered(address airline) {
         require(airlines[airline].isRegistered, "Airline is not registered");
+        _;
+    }
+
+    modifier requireAirlineIsFunded(address airline) {
+        require(airlines[airline].isFunded, "Airline is not funded");
         _;
     }
 
@@ -201,6 +220,7 @@ contract FlightSuretyData {
         external
         view
         requireIsOperational
+        requireIsCallerAuthorized
         returns (uint8)
     {
         return airlinesCounter;
@@ -210,6 +230,7 @@ contract FlightSuretyData {
         external
         view
         requireIsOperational
+        requireIsCallerAuthorized
         requireAirlineExists(airline)
         returns (
             string memory,
@@ -256,18 +277,117 @@ contract FlightSuretyData {
      *
      */
 
-    // function buy() external payable {}
+    function buy(
+        address passenger,
+        address airline,
+        string calldata flight
+    )
+        external
+        payable
+        requireIsOperational
+        requireAirlineIsFunded(airline)
+        returns (bool)
+    {
+        require(msg.value > 0, "Funds are invalid");
+        require(msg.value <= 1 ether, "Funds exceed the maximun");
+        bytes32 key = keccak256(abi.encodePacked(passenger, airline, flight));
+        insurances[key] = Insurance({
+            passenger: passenger,
+            airline: airline,
+            flight: flight,
+            value: msg.value,
+            state: InsuranceState.Active
+        });
+
+        if (passengers[passenger].isRegistered) {
+            uint8 ins = passengers[passenger].insurances;
+            passengers[passenger].insurances = ins + 1;
+        } else {
+            passengers[passenger] = Passenger({
+                isRegistered: true,
+                credit: 0,
+                insurances: 1
+            });
+        }
+
+        emit InsurancePurchased(passenger, airline, flight);
+        return true;
+    }
+
+    function getPassenger(address passenger)
+        external
+        view
+        requireIsOperational
+        requireIsCallerAuthorized
+        returns (uint256, uint8)
+    {
+        require(
+            passengers[passenger].isRegistered,
+            "Passenger is not registered"
+        );
+        uint256 credit = passengers[passenger].credit;
+        uint8 insurances = passengers[passenger].insurances;
+
+        return (credit, insurances);
+    }
+
+    function getInsurance(
+        address passenger,
+        address airline,
+        string calldata flight
+    )
+        external
+        view
+        requireIsOperational
+        requireIsCallerAuthorized
+        returns (uint256, string memory)
+    {
+        bytes32 key = keccak256(abi.encodePacked(passenger, airline, flight));
+        string memory state = "";
+        if (insurances[key].state == InsuranceState.Active) {
+            state = "Active";
+        } else if (insurances[key].state == InsuranceState.Payed) {
+            state = "Payed";
+        } else {
+            state = "Expired";
+        }
+        return (insurances[key].value, state);
+    }
 
     /**
      *  @dev Credits payouts to insurees
      */
-    // function creditInsurees() external pure {}
+    function creditInsurees(
+        address passenger,
+        address airline,
+        string calldata flight
+    ) external requireIsOperational requireIsCallerAuthorized {
+        bytes32 key = keccak256(abi.encodePacked(passenger, airline, flight));
+        insurances[key].state = InsuranceState.Payed;
+        uint256 credit = passengers[passenger].credit;
+        uint256 creditToAdd = insurances[key].value.mul(15).div(10);
+        passengers[passenger].credit = credit.add(creditToAdd);
+        passengers[passenger].insurances = passengers[passenger].insurances - 1;
+        emit CreditPayout(passenger, airline, flight);
+    }
 
     /**
      *  @dev Transfers eligible payout funds to insuree
      *
      */
-    // function pay() external pure {}
+    function pay(address payable passenger, uint256 value)
+        external
+        payable
+        requireIsOperational
+        requireIsCallerAuthorized
+        returns (uint256)
+    {
+        passenger.transfer(value);
+        uint256 credit = passengers[passenger].credit;
+        passengers[passenger].credit = credit.sub(value);
+        emit CreditTransfered(passenger, value);
+        return passengers[passenger].credit;
+    }
 
     /**
      * @dev Initial funding for the insurance. Unless there are too many delayed flights

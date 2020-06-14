@@ -23,6 +23,14 @@ const Home = () => (
         FlightSurety is a sample application project for Udacity's Blockchain
         course.
       </p>
+      <ul>
+        <li>You can operate if the Operational Status is Ok</li>
+        <li>
+          Your first step should be to fund first airline created on deploy.
+          <br />
+          Airlines --&gt; Status --&gt; Select first address
+        </li>
+      </ul>
     </Card>
   </Card>
 );
